@@ -28,6 +28,7 @@ app.post('/api/pictures', function(req, res) {
   }
   const uploadFile = req.files.uploadFile;
   const album = req.body.album;
+  console.log("body", req.body);
 
   // Moving uploaded file to "../content"
   uploadFile.mv(`../content/${req.files.uploadFile.name}`, async function(err) {
@@ -50,18 +51,20 @@ app.get('/api/pictures', async (req, res) => {
 });
 
 app.get('/api/:album/pictures', async (req, res) => {
-  const pics = await db.getPictures({albumTitle: req.params.gallery});
+  const pics = await db.getPictures({albumTitle: req.params.album});
   console.log("pics", pics);
   res.json(pics);
 });
 
 app.get('/api/albums', async (req, res) => {
-  const albums = new Set();
-  const pics = await db.getPictures();
-  for (let pic of pics) {
-    albums.add(pic.albumTitle);
-  }
-  res.json(Array.from(albums));
+  const albums = await db.getAlbums();
+  res.json(albums);
+});
+
+app.post('/api/albums', async (req, res) => {
+  const album = req.body.album;
+  const newDoc = await db.createAlbum(album);
+  res.json({msg: "album created", data: newDoc});
 });
 
 /**** Start! ****/
