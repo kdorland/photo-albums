@@ -18,17 +18,11 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(morgan('combined')); // Add middleware that logs all http requests to the console.
 app.use(cors()); // Avoid CORS errors. https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
 app.use(fileUpload());
-app.use(express.static('../client/')); // Needed for serving production build of React
+app.use(express.static('../client/photogallery/build')); // Needed for serving production build of React
+app.use('/static', express.static('../content/'));
 
 /**** Routes ****/
-
-// Return all recipes in data
-app.get('/api/hello', (req, res) => {
-    console.log("Hello");  
-    res.json({msg: "hello"});
-});
-
-app.post('/api/uploadPicture', function(req, res) {
+app.post('/api/pictures', function(req, res) {
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).send('No files were uploaded.');
   }
@@ -49,10 +43,25 @@ app.post('/api/uploadPicture', function(req, res) {
   });
 });
 
-app.get('/api/getPictures', async (req, res) => {
+app.get('/api/pictures', async (req, res) => {
   const pics = await db.getPictures();
   console.log("pics", pics);
   res.json(pics);
+});
+
+app.get('/api/:album/pictures', async (req, res) => {
+  const pics = await db.getPictures({albumTitle: req.params.gallery});
+  console.log("pics", pics);
+  res.json(pics);
+});
+
+app.get('/api/albums', async (req, res) => {
+  const albums = new Set();
+  const pics = await db.getPictures();
+  for (let pic of pics) {
+    albums.add(pic.albumTitle);
+  }
+  res.json(Array.from(albums));
 });
 
 /**** Start! ****/

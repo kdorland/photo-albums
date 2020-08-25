@@ -14,9 +14,9 @@ async function savePicture(fileName, albumTitle, photoTitle) {
   });
 }
 
-async function getPictures() {
+async function getPictures(filter) {
   return new Promise((resolve, reject) => {
-    db.find({}, function (err, docs) {
+    db.find(filter, function (err, docs) {
       console.log("found", docs);
       resolve(docs);
     });
