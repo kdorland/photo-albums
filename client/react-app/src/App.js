@@ -64,7 +64,7 @@ function App() {
 
   return (
     <>
-      <h1>Photo Gallery</h1>
+      <h1>Photo Albums</h1>
       <Router>
         <Albums path="/" 
           albums={albums} 
