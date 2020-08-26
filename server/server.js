@@ -1,24 +1,24 @@
 /**** External libraries ****/
-const express = require('express'); // The express.js library for implementing the API
+const express = require('express'); 
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
 
-/**** Our modules ****/
+/**** App modules ****/
 const db = require("./photoDb");
 
 /**** Configuration ****/
-const appName = "Photo Gallery API"; // Change the name of your server app!
-const port = process.env.PORT || 8080; // Pick port 8080 if the PORT env variable is empty.
-const app = express(); // Get the express app object.
+const appName = "Photo Album API"; 
+const port = process.env.PORT || 8080;.
+const app = express(); 
 
-app.use(bodyParser.json()); // Add middleware that parses JSON from the request body.
+app.use(bodyParser.json()); 
 app.use(bodyParser.urlencoded({ extended: false }))
-app.use(morgan('combined')); // Add middleware that logs all http requests to the console.
-app.use(cors()); // Avoid CORS errors. https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
+app.use(morgan('combined')); 
+app.use(cors());
 app.use(fileUpload());
-app.use(express.static('../client/photogallery/build')); // Needed for serving production build of React
+app.use(express.static('../client/react-app/build')); 
 app.use('/static', express.static('../content/'));
 
 /**** Routes ****/
