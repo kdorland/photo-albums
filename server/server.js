@@ -9,8 +9,8 @@ const fileUpload = require('express-fileupload');
 const db = require("./photoDb");
 
 /**** Configuration ****/
-const appName = "Photo Album API"; 
-const port = process.env.PORT || 8080;.
+const appName = "Photo Gallery API"; 
+const port = process.env.PORT || 8080;
 const app = express(); 
 
 app.use(bodyParser.json()); 
