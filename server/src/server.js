@@ -12,8 +12,8 @@ const fileUpload = require('express-fileupload');
 const app = express(); 
 const contentDir = '../content/';
 
-function createServer(photosDb, albumsDb) {
-  const db = require("./photoDb")(photosDb, albumsDb);
+function createServer(config) {
+  const db = require("./photoDb")(config.photosDb, config.albumsDb);
   const routes = require("./routes")(db, contentDir);
 
   app.use(bodyParser.json()); 
