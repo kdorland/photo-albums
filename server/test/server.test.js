@@ -1,12 +1,16 @@
 const createServer = require("../src/server");
 const supertest = require("supertest");
-const app = createServer("test/photos.test.db", "test/albums.test.db");
+const app = createServer({
+  photosDb: "test/photos.test.db",
+  albumsDb: "test/albums.test.db"});
 
 beforeEach((done) => {
-  done();
+  // Empty for now
+  done(); 
 })
 
 afterEach((done) => {
+  // Empty for now
   done();
 })
 
