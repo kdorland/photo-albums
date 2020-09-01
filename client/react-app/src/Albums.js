@@ -8,11 +8,15 @@ function Albums(props) {
   return (
     <>
       <h3>Albums</h3>
-      <ul>
+      <div className="album-container">
         {props.albums.map((element, index) => 
-          <Link to={`${element.name}`} key={index}><li>{element.name}</li></Link>
+          <div className="album-box">
+         
+              <Link to={`${element.name}`} key={index}>{element.name}</Link>
+           
+          </div>
         )}
-      </ul>
+      </div>
       <CreateAlbum createAlbum={props.createAlbum}></CreateAlbum>
     </>
   );

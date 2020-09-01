@@ -3,7 +3,6 @@ import { Router } from "@reach/router"
 
 import Albums from "./Albums";
 import Album from "./Album";
-import "./App.css";
 
 const APP_URL = process.env.REACT_APP_URL;
 

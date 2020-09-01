@@ -10,11 +10,11 @@ function UploadPicture(props) {
   }
 
   return (
-    <>
+    <div class="formContent">
       <h3>Upload picture</h3>
       <input type="file" name="uploadFile" onChange={handleFileChange}/><br/>
-      <button onClick={() => props.uploadPicture(file, props.album)}>Upload!</button>
-    </>
+      <button type="submit" onClick={() => props.uploadPicture(file, props.album)}>Upload!</button>
+    </div>
   );
 }
 

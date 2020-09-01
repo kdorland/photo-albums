@@ -63,7 +63,6 @@ test("POST /albums", async () => {
     .get("/api/albums")
     .expect(200)
     .then((response) => {
-      const len = response.body.length;
       const test = (element) => element.name === "test_abc";
       expect(response.body.some(test)).toBeTruthy();
     })

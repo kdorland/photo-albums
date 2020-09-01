@@ -40,7 +40,7 @@ module.exports = (photoDbFile, albumsDbFile) => {
 
   async function getAlbums() {
     return new Promise((resolve, reject) => {
-      dbAlbums.find({}, function (err, docs) {
+      dbAlbums.find({}).sort({ name: 1 }).exec(function (err, docs) {
         resolve(docs);
       });
     }) 
