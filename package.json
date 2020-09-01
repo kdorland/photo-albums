@@ -1,5 +1,5 @@
 {
-  "name": "photogallery",
+  "name": "photo-album",
   "version": "1.0.0",
   "dependencies": {
     "nedb": "^1.8.0"
