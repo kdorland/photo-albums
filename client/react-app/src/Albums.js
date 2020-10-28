@@ -2,8 +2,6 @@ import React from 'react';
 import {Link} from "@reach/router"
 import CreateAlbum from './CreateAlbum';
 
-const APP_URL = process.env.REACT_APP_URL;
-
 function Albums(props) {
   return (
     <>

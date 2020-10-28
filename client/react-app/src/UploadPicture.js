@@ -1,7 +1,5 @@
 import React, {useState} from 'react';
 
-const APP_URL = process.env.REACT_APP_URL;
-
 function UploadPicture(props) {
   const [file, setFile] = useState();
 

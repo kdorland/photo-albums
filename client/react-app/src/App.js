@@ -33,7 +33,6 @@ function App() {
     });
     const data = await response.json();
 
-
     setUpdates(updates + 1); // Force reload of album
   }
   
