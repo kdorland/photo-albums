@@ -1,5 +1,4 @@
 /**** Node.js libraries *****/
-const fs = require('fs');
 const path = require('path');
 
 /**** External libraries ****/
@@ -8,14 +7,34 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
+const AWS = require("aws-sdk");
 
 /**** Configuration ****/
-const app = express(); 
-const contentDir = '../content/';
+const app = express();
+
+async function getAwsCredentials() {
+  return new Promise(function (resolve, reject) {
+    AWS.config.getCredentials(function(err) {
+      if (err) {
+        console.log("Credentials error");
+        console.error(err.stack);
+        reject(err.stack);
+      } else {
+        console.log("Access key:", AWS.config.credentials.accessKeyId);
+        resolve(AWS.config.credentials);
+      }
+    });
+  });
+}
 
 function createServer(config) {
+  // AWS
+  getAwsCredentials();
+  AWS.config.update({region: 'eu-central-1'});
+  const s3 = new AWS.S3({apiVersion: '2006-03-01'});
+
   const db = require("./photoDb")(config.photosDb, config.albumsDb);
-  const routes = require("./routes")(db, contentDir);
+  const routes = require("./routes")(db, s3);
 
   app.use(bodyParser.json()); 
   app.use(bodyParser.urlencoded({ extended: false }));
@@ -23,9 +42,6 @@ function createServer(config) {
   app.use(cors());
   app.use(fileUpload());
   app.use(express.static(path.resolve('..', 'client', 'react-app', 'build'))); 
-  app.use('/static', express.static(contentDir));
-  
-  fs.mkdirSync(contentDir, { recursive: true });
   
   /**** Add routes ****/
   app.use("/api", routes);

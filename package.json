@@ -2,6 +2,7 @@
   "name": "photo-album",
   "version": "1.0.0",
   "dependencies": {
+    "aws-sdk": "^2.788.0",
     "nedb": "^1.8.0"
   },
   "scripts": {

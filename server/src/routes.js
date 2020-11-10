@@ -1,9 +1,27 @@
-module.exports = (db, contentDir) => {
+const BUCKET = "photo-album-bucket-eaaa";
+const CONTENT_DIR = '../content/';
+
+module.exports = (db, s3) => {
   const express = require("express");
   const router = express.Router();
+  const fs = require('fs');
+
+  // Make sure upload dir exists
+  fs.mkdirSync(CONTENT_DIR, { recursive: true });
+
+  async function createBucket() {
+    // Call S3 to create a new bucket
+    try {
+      const createResult = await s3.createBucket({ Bucket: BUCKET}).promise();
+      console.log("Create bucket", createResult);  
+    } catch (e) {
+      console.log(e.message);
+    }
+  }
+  createBucket();
 
   /**** Routes ****/
-  router.post('/pictures', function(req, res) {
+  router.post('/pictures', async function(req, res) {
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).send('No files were uploaded.');
     }
@@ -11,18 +29,30 @@ module.exports = (db, contentDir) => {
     const album = req.body.album;
 
     // Moving uploaded file to "../content"
-    uploadFile.mv(`${contentDir}${req.files.uploadFile.name}`, async function(err) {
+    const file = `${CONTENT_DIR}${req.files.uploadFile.name}`;
+    uploadFile.mv(file, async function(err) {
       if (err) {
         console.error(err);
         return res.status(500).send(err);
-      } else {
-        const doc = await db.savePicture(
-          req.files.uploadFile.name, 
-          album ? album : "default", 
-          req.files.uploadFile.name);
-        res.json({msg: "data inserted", data: doc});
       }
     });
+
+    // Configure the file stream and obtain the upload parameters
+    const fileStream = fs.createReadStream(file);
+    fileStream.on('error', function(err) {
+      console.log('File Error', err);
+    });
+    const uploadParams = { 
+      Bucket: BUCKET, 
+      Key: uploadFile.name, 
+      ContentType: "image/jpeg",
+      Body: fileStream,
+      Metadata: {album: album},
+    };
+    
+    // Upload file to specified bucket
+    const uploadResult = await s3.upload(uploadParams).promise();
+    console.log("Upload Success", uploadResult);
   });
 
   router.get('/pictures', async (req, res) => {
