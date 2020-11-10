@@ -4,7 +4,6 @@ module.exports = (db, s3) => {
   const express = require("express");
   const router = express.Router();
 
-  // TODO: Enable static site hosting automatically on bucket after creation
   async function createBucket() {
     // Call S3 to create a new bucket
     try {
