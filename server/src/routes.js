@@ -1,5 +1,4 @@
 const BUCKET = process.env.BUCKET || "photo-album-bucket-eaaa";
-const CONTENT_DIR = '../content/';
 
 module.exports = (db, s3) => {
   const express = require("express");
@@ -15,7 +14,6 @@ module.exports = (db, s3) => {
       console.log(e.message);
     }
   }
-  createBucket();
 
   async function createBucketPolicy() {
     // Change bucket policy
@@ -47,7 +45,33 @@ module.exports = (db, s3) => {
     const putPolicy = await s3.putBucketPolicy(bucketPolicyParams).promise();
     console.log("putPolicy", putPolicy);
   }
-  createBucketPolicy();
+
+  async function createBucketWebsite() {
+    // Create JSON for putBucketWebsite parameters
+    const staticHostParams = {
+      Bucket: BUCKET,
+      WebsiteConfiguration: {
+        ErrorDocument: {
+          Key: 'index.html'
+        },
+        IndexDocument: {
+          Suffix: 'index.html'
+        },
+      }
+    };
+
+    // set the new website configuration on the selected bucket
+    const data = await s3.putBucketWebsite(staticHostParams).promise();
+    console.log("putBucketWebsite", data);
+  }
+
+  async function initS3() {
+    await createBucket();
+    await createBucketPolicy();
+    await createBucketWebsite();
+  }
+ 
+  initS3().then(() => console.log("Init S3 done"));
 
   /**** Routes ****/
   router.post('/pictures', async function(req, res) {
