@@ -1,14 +1,11 @@
-const BUCKET = "photo-album-bucket-eaaa";
+const BUCKET = process.env.BUCKET || "photo-album-bucket-eaaa";
 const CONTENT_DIR = '../content/';
 
 module.exports = (db, s3) => {
   const express = require("express");
   const router = express.Router();
-  const fs = require('fs');
 
-  // Make sure upload dir exists
-  fs.mkdirSync(CONTENT_DIR, { recursive: true });
-
+  // TODO: Enable static site hosting automatically on bucket after creation
   async function createBucket() {
     // Call S3 to create a new bucket
     try {
@@ -20,6 +17,38 @@ module.exports = (db, s3) => {
   }
   createBucket();
 
+  async function createBucketPolicy() {
+    // Change bucket policy
+    const readOnlyAnonUserPolicy = {
+      Version: "2012-10-17",
+      Statement: [
+        {
+          Sid: "AddPerm",
+          Effect: "Allow",
+          Principal: "*",
+          Action: [
+            "s3:GetObject"
+          ],
+          Resource: [
+            ""
+          ]
+        }
+      ]
+    };
+    
+    // Create selected bucket resource string for bucket policy
+    const bucketResource = `arn:aws:s3:::${BUCKET}/*`;
+    readOnlyAnonUserPolicy.Statement[0].Resource[0] = bucketResource;
+    
+    // Convert policy JSON into string and assign into params
+    const bucketPolicyParams = {Bucket: BUCKET, Policy: JSON.stringify(readOnlyAnonUserPolicy)};
+    
+    // Set the new policy on the selected bucket
+    const putPolicy = await s3.putBucketPolicy(bucketPolicyParams).promise();
+    console.log("putPolicy", putPolicy);
+  }
+  createBucketPolicy();
+
   /**** Routes ****/
   router.post('/pictures', async function(req, res) {
     if (!req.files || Object.keys(req.files).length === 0) {
@@ -28,31 +57,24 @@ module.exports = (db, s3) => {
     const uploadFile = req.files.uploadFile;
     const album = req.body.album;
 
-    // Moving uploaded file to "../content"
-    const file = `${CONTENT_DIR}${req.files.uploadFile.name}`;
-    uploadFile.mv(file, async function(err) {
-      if (err) {
-        console.error(err);
-        return res.status(500).send(err);
-      }
-    });
-
-    // Configure the file stream and obtain the upload parameters
-    const fileStream = fs.createReadStream(file);
-    fileStream.on('error', function(err) {
-      console.log('File Error', err);
-    });
     const uploadParams = { 
       Bucket: BUCKET, 
       Key: uploadFile.name, 
-      ContentType: "image/jpeg",
-      Body: fileStream,
+      ContentType: uploadFile.mimetype,
+      Body: req.files.uploadFile.data,
       Metadata: {album: album},
     };
     
     // Upload file to specified bucket
     const uploadResult = await s3.upload(uploadParams).promise();
     console.log("Upload Success", uploadResult);
+
+    // Save metadata to database
+    const doc = await db.savePicture(
+      req.files.uploadFile.name, 
+      album ? album : "default", 
+      req.files.uploadFile.name);
+    res.json({msg: "data inserted", data: doc});
   });
 
   router.get('/pictures', async (req, res) => {

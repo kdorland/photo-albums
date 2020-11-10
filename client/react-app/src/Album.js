@@ -2,7 +2,8 @@ import React, {useState, useEffect} from 'react';
 import {Link} from "@reach/router"
 import UploadPicture from "./UploadPicture";
 
-const APP_URL = process.env.REACT_APP_URL;
+//const APP_URL = process.env.REACT_APP_URL;
+const BUCKET_URL = process.env.REACT_APP_BUCKET_URL;
 
 function Album(props) {
   const [photos, setPhotos] = useState([]);
@@ -21,10 +22,10 @@ function Album(props) {
 
       <div id="photo-gallery">
       {photos.map(element => 
-        <a href={`${APP_URL}static/${element.fileName}`} 
+        <a href={`${BUCKET_URL}/${element.fileName}`} 
           target="_blank" key={element.fileName} rel="noopener noreferrer">
           <img alt={`file name: ${element.fileName}`}
-            src={`${APP_URL}static/${element.fileName}`}>
+            src={`${BUCKET_URL}/${element.fileName}`}>
           </img>
         </a>
         )}

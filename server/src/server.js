@@ -32,7 +32,6 @@ function createServer(config) {
   getAwsCredentials();
   AWS.config.update({region: 'eu-central-1'});
   const s3 = new AWS.S3({apiVersion: '2006-03-01'});
-
   const db = require("./photoDb")(config.photosDb, config.albumsDb);
   const routes = require("./routes")(db, s3);
 
